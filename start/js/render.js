@@ -144,14 +144,12 @@ function createTaskCardDOM(task) {
     footer.appendChild(actionsLeft);
     footer.appendChild(arrows);
 
-    if (column !== 'done') {
-        card.setAttribute('draggable', 'true');
-        card.addEventListener('dragstart', (e) => {
-            card.classList.add('dragging');
-            e.dataTransfer.setData('text/plain', task.id);
-        });
-        card.addEventListener('dragend', () => card.classList.remove('dragging'));
-    }
+    card.setAttribute('draggable', 'true');
+    card.addEventListener('dragstart', (e) => {
+        card.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', task.id);
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
     card.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         e.stopPropagation();
