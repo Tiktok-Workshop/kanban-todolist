@@ -20,6 +20,18 @@ function showContextMenu(x, y, taskId) {
         ctxDelete: () => deleteTask(taskId)
     };
 
+    const runDevin = document.getElementById('ctxRunDevin');
+    const openDevin = document.getElementById('ctxOpenDevin');
+    const canRunDevin = devinEnabled && task.column === 'todo' && !task.devinSessionId;
+    const canOpenDevin = Boolean(task.devinSessionUrl);
+
+    runDevin.classList.toggle('hidden', !canRunDevin);
+    openDevin.classList.toggle('hidden', !canOpenDevin);
+    document.getElementById('ctxDevinDivider').classList.toggle('hidden', !canRunDevin && !canOpenDevin);
+
+    runDevin.onclick = canRunDevin ? () => { openDevinModal(taskId); hideContextMenu(); } : null;
+    openDevin.onclick = canOpenDevin ? () => { openDevinSession(taskId); hideContextMenu(); } : null;
+
     Object.keys(items).forEach(id => {
         const el = document.getElementById(id);
         const action = items[id];
