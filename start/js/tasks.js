@@ -1,3 +1,5 @@
+let editingTaskId = null;
+
 function addNewTodo() {
     const input = document.getElementById('todoTitleInput');
     const priorityInput = document.getElementById('todoPriorityInput');
@@ -39,7 +41,11 @@ function addNewTodo() {
     render();
 }
 
-function deleteTask(taskId) {
+async function deleteTask(taskId) {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const ok = await requestConfirmation('Delete Task', `Are you sure you want to permanently delete "${task.title}"?`);
+    if (!ok) return;
     state.tasks = state.tasks.filter(t => t.id !== taskId);
     saveToStorage();
     render();
@@ -60,5 +66,60 @@ function moveTask(taskId, targetColumn) {
     if ((oldColumn === 'done' || oldColumn === 'progress') && (targetColumn === 'todo' || targetColumn === 'progress')) task.completed = false;
     task.column = targetColumn;
     saveToStorage();
+    render();
+}
+
+function openTaskModal(taskId) {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    editingTaskId = taskId;
+
+    const titleInput = document.getElementById('taskTitleInput');
+    const priorityInput = document.getElementById('taskPriorityInput');
+    const descInput = document.getElementById('taskDescInput');
+
+    titleInput.value = task.title;
+    priorityInput.value = task.priority || 'low';
+    descInput.value = task.desc || '';
+    document.getElementById('taskTitleCounter').textContent = `${40 - titleInput.value.length} left`;
+    document.getElementById('taskDescCounter').textContent = `${150 - descInput.value.length} left`;
+    document.getElementById('taskCreated').textContent = formatFullTime(task.createdAt);
+    document.getElementById('taskEdited').textContent = task.editedAt ? formatFullTime(task.editedAt) : 'Not edited yet';
+
+    const readOnly = task.column === 'done';
+    titleInput.disabled = readOnly;
+    priorityInput.disabled = readOnly;
+    descInput.disabled = readOnly;
+    document.getElementById('taskModalTitle').textContent = readOnly ? 'Task Details' : 'Edit Task';
+    document.getElementById('saveEditBtn').classList.toggle('hidden', readOnly);
+
+    openModal('taskModal');
+}
+const openViewModal = openTaskModal;
+const openEditModal = openTaskModal;
+
+function saveEditedTask() {
+    const task = state.tasks.find(t => t.id === editingTaskId);
+    if (!task) return;
+
+    const title = document.getElementById('taskTitleInput').value.trim();
+    const desc = document.getElementById('taskDescInput').value.trim();
+    const priority = document.getElementById('taskPriorityInput').value;
+
+    if (title.length < 3 || title.length > 40) {
+        alert('Title must be between 3 and 40 characters.');
+        return;
+    }
+    if (desc.length > 150) {
+        alert('Description must be 150 characters or fewer.');
+        return;
+    }
+
+    task.title = title;
+    task.desc = desc;
+    task.priority = priority;
+    task.editedAt = Date.now();
+    saveToStorage();
+    closeModal('taskModal');
     render();
 }

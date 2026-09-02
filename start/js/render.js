@@ -10,7 +10,9 @@ function render() {
     const counts = { todo: 0, progress: 0, done: 0 };
     Object.values(COLUMN_BODIES).forEach(id => { document.getElementById(id).innerHTML = ''; });
 
-    state.tasks.forEach(task => {
+    const filteredTasks = getFilteredSortedTasks();
+
+    filteredTasks.forEach(task => {
         const column = COLUMN_BODIES[task.column] ? task.column : 'todo';
         document.getElementById(COLUMN_BODIES[column]).appendChild(createTaskCardDOM(task));
         counts[column]++;
@@ -19,6 +21,37 @@ function render() {
     Object.keys(counts).forEach(column => {
         document.getElementById(COLUMN_COUNTS[column]).textContent = counts[column];
         checkEmptyState(column, counts[column]);
+    });
+}
+
+function getFilteredSortedTasks() {
+    let filteredTasks = [...state.tasks];
+    if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        filteredTasks = filteredTasks.filter(t =>
+            t.title.toLowerCase().includes(q) || (t.desc || '').toLowerCase().includes(q));
+    }
+    if (state.filterPriority !== 'all') {
+        filteredTasks = filteredTasks.filter(t => t.priority === state.filterPriority);
+    }
+    filteredTasks.sort((a, b) => {
+        if (state.sortBy === 'date-desc') return b.createdAt - a.createdAt;
+        if (state.sortBy === 'date-asc')  return a.createdAt - b.createdAt;
+        if (state.sortBy === 'priority-desc') {
+            const w = { high: 3, medium: 2, low: 1 };
+            return w[b.priority] - w[a.priority];
+        }
+        if (state.sortBy === 'title-asc') return a.title.localeCompare(b.title);
+        return 0;
+    });
+    return filteredTasks;
+}
+
+function renderTimestampsOnly() {
+    document.querySelectorAll('.task-card').forEach(card => {
+        const task = state.tasks.find(t => t.id === card.dataset.id);
+        const time = card.querySelector('.task-time');
+        if (task && time) time.textContent = formatRelativeTime(task.createdAt);
     });
 }
 
@@ -50,8 +83,17 @@ function createTaskCardDOM(task) {
     del.innerHTML = '<i class="fas fa-trash-alt"></i>';
     del.addEventListener('click', () => deleteTask(task.id));
 
+    const time = document.createElement('span');
+    time.className = 'task-time';
+    time.textContent = formatRelativeTime(task.createdAt);
+
+    const headerRight = document.createElement('div');
+    headerRight.className = 'task-header-right';
+    headerRight.appendChild(time);
+    headerRight.appendChild(del);
+
     header.appendChild(badge);
-    header.appendChild(del);
+    header.appendChild(headerRight);
 
     const title = document.createElement('h4');
     title.className = 'task-title';
@@ -71,6 +113,9 @@ function createTaskCardDOM(task) {
     footer.className = 'task-footer';
     const actionsLeft = document.createElement('div');
     actionsLeft.className = 'card-actions-left';
+    actionsLeft.innerHTML = column === 'done'
+        ? `<button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="View Task"><i class="fas fa-expand-alt"></i></button>`
+        : `<button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="Edit Task"><i class="fas fa-pencil-alt"></i></button>`;
     const arrows = document.createElement('div');
     arrows.className = 'card-nav-arrows';
 
