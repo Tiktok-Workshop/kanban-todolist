@@ -1,5 +1,6 @@
 const COLUMN_BODIES = { todo: 'bodyTodo', progress: 'bodyProgress', done: 'bodyDone' };
 const COLUMN_COUNTS = { todo: 'countTodo', progress: 'countProgress', done: 'countDone' };
+const TAB_BADGES = { todo: 'todoTabBadge', progress: 'progressTabBadge', done: 'doneTabBadge' };
 const EMPTY_STATES = {
     todo:     { icon: 'fa-clipboard-list', text: 'No tasks listed here.' },
     progress: { icon: 'fa-spinner',        text: 'Nothing in progress.' },
@@ -38,6 +39,7 @@ function render() {
 
     Object.keys(counts).forEach(column => {
         document.getElementById(COLUMN_COUNTS[column]).textContent = counts[column];
+        document.getElementById(TAB_BADGES[column]).textContent = counts[column];
         checkEmptyState(column, counts[column]);
     });
 }
@@ -76,7 +78,7 @@ function createTaskCardDOM(task) {
 
     card.innerHTML = `
         <div class="task-header">
-            <span class="badge-priority ${task.priority}">${task.priority}</span>
+            <span class="badge-priority ${task.priority}" onclick="openBadgePriorityMenu(event, '${task.id}')" title="Change priority">${task.priority}</span>
             <span class="task-time">${formatRelativeTime(task.createdAt)}</span>
             <button class="btn-card-action" title="Delete" onclick="deleteTask('${task.id}')"><i class="fas fa-trash-alt"></i></button>
         </div>
@@ -99,5 +101,12 @@ function createTaskCardDOM(task) {
         descEl.style.color = 'var(--text-muted)';
         descEl.style.fontStyle = 'italic';
     }
+
+    if (!isDone) {
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => { card.classList.add('dragging'); e.dataTransfer.setData('text/plain', task.id); });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    }
+    card.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); showContextMenu(e.clientX, e.clientY, task.id); });
     return card;
 }
