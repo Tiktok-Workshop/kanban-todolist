@@ -1,0 +1,63 @@
+const LOCAL_STORAGE_KEY = 'daily-task-tracker';
+
+// Task shape: { id, title, desc, priority, column, createdAt, editedAt, completed }
+let state = {
+    tasks: [],
+    filterPriority: 'all',
+    sortBy: 'date-desc',
+    searchQuery: '',
+    activeTab: 'todo',
+    theme: null
+};
+
+function getActiveTheme() {
+    if (state.theme) return state.theme;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme() {
+    const theme = getActiveTheme();
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon = document.querySelector('#themeToggleBtn i');
+    if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+function toggleTheme() {
+    state.theme = getActiveTheme() === 'dark' ? 'light' : 'dark';
+    saveToStorage();
+    applyTheme();
+}
+
+function createDemoTasks() {
+    return [
+        { id: 'demo-1', title: 'Escape HTML in task text', desc: 'Sanitize titles/descriptions to prevent injection.', priority: 'high', column: 'todo', createdAt: Date.now() - 40 * 60 * 1000, editedAt: null, completed: false },
+        { id: 'demo-2', title: 'Add undo for deleted tasks', desc: 'Show a toast with an Undo action after deleting.', priority: 'medium', column: 'todo', createdAt: Date.now() - 15 * 60 * 1000, editedAt: null, completed: false },
+        { id: 'demo-3', title: 'Improve keyboard accessibility', desc: 'Move/edit cards via keyboard; add ARIA roles.', priority: 'medium', column: 'progress', createdAt: Date.now() - 3 * 3600 * 1000, editedAt: null, completed: false },
+        { id: 'demo-4', title: 'Add tests for task rules', desc: 'Unit-test the move/add/edit logic.', priority: 'medium', column: 'progress', createdAt: Date.now() - 6 * 3600 * 1000, editedAt: null, completed: false },
+        { id: 'demo-5', title: 'Export and import tasks as JSON', desc: 'Backup/restore so data is not trapped here.', priority: 'low', column: 'done', createdAt: Date.now() - 25 * 3600 * 1000, editedAt: Date.now() - 24 * 3600 * 1000, completed: true }
+    ];
+}
+
+function loadDemoData() {
+    state.tasks = createDemoTasks();
+    saveToStorage();
+}
+
+function loadFromStorage() {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+        try { state = { ...state, ...JSON.parse(saved) }; } catch (e) { console.error('Storage loading error:', e); }
+        state.filterPriority = state.filterPriority || 'all';
+        state.sortBy = state.sortBy || 'date-desc';
+        state.searchQuery = '';
+        state.activeTab = state.activeTab || 'todo';
+        state.theme = state.theme || null;
+    } else {
+        state.tasks = createDemoTasks();
+        saveToStorage();
+    }
+}
+
+function saveToStorage() {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+}
