@@ -37,6 +37,11 @@ function setupEventListeners() {
         render();
     });
 
+    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (!state.theme) applyTheme();
+    });
+
     document.getElementById('saveEditBtn').addEventListener('click', saveEditedTask);
 
     const modalTitleInput = document.getElementById('taskTitleInput');

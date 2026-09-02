@@ -6,8 +6,27 @@ let state = {
     filterPriority: 'all',
     sortBy: 'date-desc',
     searchQuery: '',
-    activeTab: 'todo'
+    activeTab: 'todo',
+    theme: null
 };
+
+function getActiveTheme() {
+    if (state.theme) return state.theme;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme() {
+    const theme = getActiveTheme();
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon = document.querySelector('#themeToggleBtn i');
+    if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+function toggleTheme() {
+    state.theme = getActiveTheme() === 'dark' ? 'light' : 'dark';
+    saveToStorage();
+    applyTheme();
+}
 
 function createDemoTasks() {
     return [
@@ -32,6 +51,7 @@ function loadFromStorage() {
         state.sortBy = state.sortBy || 'date-desc';
         state.searchQuery = '';
         state.activeTab = state.activeTab || 'todo';
+        state.theme = state.theme || null;
     } else {
         state.tasks = createDemoTasks();
         saveToStorage();

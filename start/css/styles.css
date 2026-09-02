@@ -1005,3 +1005,136 @@ body {
 #devinPromptInput {
     resize: vertical;
 }
+
+/* ==========================================================================
+   18. THEME TOGGLE
+   ========================================================================== */
+.btn-theme-toggle {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+.btn-theme-toggle:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary-contrast);
+}
+
+/* ==========================================================================
+   19. DARK MODE
+   ========================================================================== */
+[data-theme="dark"] {
+    color-scheme: dark;
+    --bg-main: #0b1120;
+    --bg-card: #111827;
+    --bg-subtle: #0f172a;
+    --bg-hover: #1e293b;
+    --border-color: #1f2937;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+    --primary-light: #06302e;
+    --primary-contrast: #7ffbf6;
+    --priority-low-bg: #052e1c;    --priority-low-text: #4ade80;
+    --priority-medium-bg: #3b2305; --priority-medium-text: #fbbf24;
+    --priority-high-bg: #3f0f14;   --priority-high-text: #f87171;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .logo .todo-text { color: #ffffff; }
+
+[data-theme="dark"] .app-header,
+[data-theme="dark"] .board-container,
+[data-theme="dark"] .mobile-board-tabs,
+[data-theme="dark"] .add-todo-card,
+[data-theme="dark"] .modal-container,
+[data-theme="dark"] .header-actions-menu,
+[data-theme="dark"] .badge-dropdown-menu,
+[data-theme="dark"] .custom-context-menu,
+[data-theme="dark"] .toast,
+[data-theme="dark"] .select-filter,
+[data-theme="dark"] .search-input,
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-textarea,
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .btn-bulk-neutral {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .add-todo-wrapper,
+[data-theme="dark"] .add-todo-desc-row,
+[data-theme="dark"] .board-column,
+[data-theme="dark"] .modal-footer,
+[data-theme="dark"] .meta-list {
+    background-color: var(--bg-subtle);
+}
+
+[data-theme="dark"] .title-input-field,
+[data-theme="dark"] .desc-textarea-field {
+    background: transparent;
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .column-count,
+[data-theme="dark"] .mobile-tab-btn,
+[data-theme="dark"] .mobile-tab-btn .badge,
+[data-theme="dark"] .btn-arrow {
+    background-color: var(--bg-hover);
+    color: var(--text-secondary);
+}
+[data-theme="dark"] .mobile-tab-btn.active {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+[data-theme="dark"] .mobile-tab-btn.active .badge {
+    background-color: var(--primary);
+    color: #00332f;
+}
+
+[data-theme="dark"] .btn-arrow:hover,
+[data-theme="dark"] .btn-card-action:hover,
+[data-theme="dark"] .btn-secondary:hover,
+[data-theme="dark"] .context-menu-item:hover {
+    background-color: #334155;
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .task-card:hover { border-color: #334155; }
+[data-theme="dark"] .task-footer { border-top-color: var(--border-color); }
+[data-theme="dark"] .empty-column-placeholder i { color: #334155; }
+[data-theme="dark"] .modal-overlay { background-color: rgba(2, 6, 23, 0.7); }
+[data-theme="dark"] .context-menu-item.danger:hover { background-color: var(--priority-high-bg); }
+[data-theme="dark"] .board-column.drag-over { background-color: var(--primary-light); }
+
+[data-theme="dark"] .btn-add-submit,
+[data-theme="dark"] .btn-primary {
+    color: #00332f;
+}
+
+[data-theme="dark"] .devin-status-pill.devin-finished,
+[data-theme="dark"] .devin-status-pill.devin-complete {
+    background-color: var(--priority-low-bg);
+    color: var(--priority-low-text);
+}
+[data-theme="dark"] .devin-status-pill.devin-error,
+[data-theme="dark"] .devin-status-pill.devin-suspended {
+    background-color: var(--priority-high-bg);
+    color: var(--priority-high-text);
+}
+[data-theme="dark"] .devin-status-pill.devin-waiting,
+[data-theme="dark"] .devin-status-pill.devin-blocked {
+    background-color: var(--priority-medium-bg);
+    color: var(--priority-medium-text);
+}

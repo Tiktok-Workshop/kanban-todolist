@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadFromStorage();
+    applyTheme();
 
     document.getElementById('priorityFilter').value = state.filterPriority || 'all';
     document.getElementById('sortBySelect').value = state.sortBy || 'date-desc';
