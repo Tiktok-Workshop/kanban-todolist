@@ -6,6 +6,10 @@ function loadFromStorage() {
     if (saved) {
         try { state = JSON.parse(saved); } catch (e) { console.error('Storage loading error:', e); }
     }
+    state.tasks.forEach(t => {
+        if (!t.priority) t.priority = 'low';
+        if (t.desc === undefined) t.desc = '';
+    });
 }
 
 function saveToStorage() {
