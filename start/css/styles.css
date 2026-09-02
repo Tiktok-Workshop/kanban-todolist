@@ -65,3 +65,45 @@ body { background: #f8fafc; color: #0f172a; padding: 40px 16px; }
 .task-delete:hover { border-color: var(--accent); color: var(--accent); }
 
 .empty-state { text-align: center; color: #64748b; padding: 32px 12px; font-size: 0.95rem; }
+
+#toastContainer {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+.toast-message { word-break: break-word; }
+
+.toast-action {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+.toast-action:hover { background: rgba(0, 242, 234, 0.15); }
