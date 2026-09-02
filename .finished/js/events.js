@@ -70,6 +70,20 @@
                 render();
             });
 
+            // Light / dark theme toggle, persisted separately from board state.
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            themeToggleBtn.addEventListener('click', () => {
+                const root = document.documentElement;
+                const isDark = root.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    root.removeAttribute('data-theme');
+                    localStorage.setItem(THEME_STORAGE_KEY, 'light');
+                } else {
+                    root.setAttribute('data-theme', 'dark');
+                    localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+                }
+            });
+
             // Header "Actions" dropdown — toggles the bulk-operations menu.
             const headerActionsBtn = document.getElementById('headerActionsBtn');
             const headerActionsMenu = document.getElementById('headerActionsMenu');

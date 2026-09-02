@@ -2,6 +2,7 @@
         // LOCAL STORAGE STORAGE KEY & SYSTEM STATE DECLARATIONS
         // ==========================================
         const LOCAL_STORAGE_KEY = 'daily-task-tracker';
+        const THEME_STORAGE_KEY = 'daily-task-tracker-theme';
         let state = {
             tasks: [],
             filterPriority: 'all',
