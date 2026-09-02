@@ -1,5 +1,6 @@
 const COLUMN_BODY_IDS = { todo: 'bodyTodo', progress: 'bodyProgress', done: 'bodyDone' };
 const COLUMN_COUNT_IDS = { todo: 'countTodo', progress: 'countProgress', done: 'countDone' };
+const TAB_BADGE_IDS = { todo: 'todoTabBadge', progress: 'progressTabBadge', done: 'doneTabBadge' };
 const COLUMN_EMPTY_STATES = {
     todo:     { icon: 'fa-clipboard-list', text: 'No tasks listed here.' },
     progress: { icon: 'fa-spinner',        text: 'Nothing in progress.' },
@@ -41,6 +42,7 @@ function render() {
 
     Object.keys(counts).forEach(column => {
         document.getElementById(COLUMN_COUNT_IDS[column]).textContent = counts[column];
+        document.getElementById(TAB_BADGE_IDS[column]).textContent = counts[column];
         checkEmptyState(column, counts[column]);
     });
 }
@@ -57,12 +59,21 @@ function createTaskCardDOM(task) {
     card.className = `task-card priority-${task.priority}`;
     card.dataset.id = task.id;
 
+    if (task.column !== 'done') {
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => { card.classList.add('dragging'); e.dataTransfer.setData('text/plain', task.id); });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    }
+    card.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); showContextMenu(e.clientX, e.clientY, task.id); });
+
     const header = document.createElement('div');
     header.className = 'task-header';
 
     const badge = document.createElement('span');
     badge.className = `badge-priority ${task.priority}`;
     badge.textContent = task.priority;
+    badge.title = 'Change priority';
+    badge.addEventListener('click', (e) => openBadgePriorityMenu(e, task.id));
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-card-action';

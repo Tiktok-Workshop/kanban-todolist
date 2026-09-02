@@ -27,6 +27,62 @@ function setupEventListeners() {
     document.getElementById('priorityFilter').addEventListener('change', (e) => { state.filterPriority = e.target.value; saveToStorage(); render(); });
     document.getElementById('sortBySelect').addEventListener('change', (e) => { state.sortBy = e.target.value; saveToStorage(); render(); });
 
+    document.querySelectorAll('.board-column').forEach(col => {
+        col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('drag-over'); });
+        col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+        col.addEventListener('drop', (e) => {
+            e.preventDefault();
+            col.classList.remove('drag-over');
+            moveTask(e.dataTransfer.getData('text/plain'), col.getAttribute('data-column'));
+        });
+    });
+
+    const actionsBtn = document.getElementById('headerActionsBtn');
+    const actionsMenu = document.getElementById('headerActionsMenu');
+    actionsBtn.addEventListener('click', (e) => { e.stopPropagation(); actionsMenu.classList.toggle('hidden'); });
+    document.getElementById('actLoadDemo').addEventListener('click', async () => {
+        actionsMenu.classList.add('hidden');
+        if (!await requestConfirmation('Load Sample Data', 'This will replace all current tasks with sample data. Continue?')) return;
+        loadDemoData();
+        render();
+        showToast('Sample data loaded.', 'success');
+    });
+    document.getElementById('actCleanDone').addEventListener('click', async () => {
+        actionsMenu.classList.add('hidden');
+        const doneCount = state.tasks.filter(t => t.completed).length;
+        if (!doneCount) { showToast('No completed tasks to clean.', 'info'); return; }
+        if (!await requestConfirmation('Clean Done', `Permanently delete ${doneCount} completed task(s)?`)) return;
+        state.tasks = state.tasks.filter(t => !t.completed);
+        saveToStorage();
+        render();
+        showToast(`Removed ${doneCount} completed task(s).`, 'success');
+    });
+    document.getElementById('actCleanAll').addEventListener('click', async () => {
+        actionsMenu.classList.add('hidden');
+        if (!state.tasks.length) { showToast('The board is already empty.', 'info'); return; }
+        if (!await requestConfirmation('Clean All', 'Permanently delete every task on the board?')) return;
+        state.tasks = [];
+        saveToStorage();
+        render();
+        showToast('All tasks removed.', 'success');
+    });
+
+    document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-tab');
+            state.activeTab = tab;
+            document.querySelectorAll('.mobile-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+            document.querySelectorAll('.board-column').forEach(col => col.classList.toggle('active-tab', col.getAttribute('data-column') === tab));
+        });
+    });
+
+    document.addEventListener('click', () => {
+        hideContextMenu();
+        hideBadgePriorityMenu();
+        actionsMenu.classList.add('hidden');
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { hideContextMenu(); hideBadgePriorityMenu(); actionsMenu.classList.add('hidden'); } });
+
     titleInput.addEventListener('focus', () => addCard.classList.add('expanded'));
     document.addEventListener('click', (e) => {
         if (!addCard.contains(e.target) && !titleInput.value.trim() && !descInput.value.trim()) {

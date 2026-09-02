@@ -10,12 +10,12 @@ function addNewTodo() {
     const desc = descInput.value.trim();
 
     if (title.length < 3 || title.length > 40) {
-        alert('Task title must be between 3 and 40 characters.');
+        showToast('Task title must be between 3 and 40 characters.', 'error');
         input.focus();
         return;
     }
     if (desc.length > 150) {
-        alert('Description must be 150 characters or fewer.');
+        showToast('Description must be 150 characters or fewer.', 'error');
         descInput.focus();
         return;
     }
@@ -40,6 +40,7 @@ function addNewTodo() {
     document.getElementById('addTodoCard').classList.remove('expanded');
 
     render();
+    showToast('Task added to To Do.', 'success');
 }
 
 function moveTask(taskId, targetColumn) {
@@ -48,7 +49,7 @@ function moveTask(taskId, targetColumn) {
     const oldColumn = task.column;
     if (targetColumn === 'done') {
         if (oldColumn === 'todo') {
-            alert('Tasks must go through In Progress before they can be marked Done.');
+            showToast('Tasks must go through In Progress before they can be marked Done.', 'warning');
             return;
         }
         task.completed = true;
@@ -57,6 +58,8 @@ function moveTask(taskId, targetColumn) {
     task.column = targetColumn;
     saveToStorage();
     render();
+    const labels = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
+    showToast(`Moved "${task.title}" to ${labels[targetColumn]}.`, targetColumn === 'done' ? 'success' : 'info');
 }
 
 function openTaskModal(taskId) {
@@ -95,11 +98,11 @@ function saveEditedTask() {
     const desc = document.getElementById('taskDescInput').value.trim();
 
     if (title.length < 3 || title.length > 40) {
-        alert('Task title must be between 3 and 40 characters.');
+        showToast('Task title must be between 3 and 40 characters.', 'error');
         return;
     }
     if (desc.length > 150) {
-        alert('Description must be 150 characters or fewer.');
+        showToast('Description must be 150 characters or fewer.', 'error');
         return;
     }
 
@@ -110,6 +113,7 @@ function saveEditedTask() {
     saveToStorage();
     closeModal('taskModal');
     render();
+    showToast('Task updated.', 'success');
 }
 
 async function deleteTask(taskId) {
@@ -120,4 +124,5 @@ async function deleteTask(taskId) {
     state.tasks = state.tasks.filter(t => t.id !== taskId);
     saveToStorage();
     render();
+    showToast('Task deleted.', 'info');
 }
