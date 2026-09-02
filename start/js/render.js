@@ -16,12 +16,12 @@ function render() {
 
         const title = document.createElement('span');
         title.className = 'task-title';
-        title.textContent = task.title;
+        title.innerHTML = escapeHtml(task.title);
 
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'task-delete';
         deleteBtn.textContent = 'Delete';
-        deleteBtn.setAttribute('onclick', `deleteTask('${task.id}')`);
+        deleteBtn.addEventListener('click', () => deleteTask(task.id));
 
         row.appendChild(title);
         row.appendChild(deleteBtn);
