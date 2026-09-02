@@ -19,6 +19,8 @@ function render() {
 
     Object.keys(COLUMN_META).forEach(col => {
         document.getElementById(COLUMN_META[col].countId).textContent = counts[col];
+        const tabBadge = document.getElementById(`${col}TabBadge`);
+        if (tabBadge) tabBadge.textContent = counts[col];
         checkEmptyState(col, counts[col]);
     });
 }
@@ -79,6 +81,8 @@ function createTaskCardDOM(task) {
     const badge = document.createElement('span');
     badge.className = `badge-priority ${priority}`;
     badge.textContent = priority;
+    badge.title = column === 'done' ? 'Priority' : 'Change priority';
+    badge.addEventListener('click', (e) => openBadgePriorityMenu(e, task.id));
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-card-action';
@@ -98,9 +102,22 @@ function createTaskCardDOM(task) {
     header.appendChild(badge);
     header.appendChild(headerRight);
 
+    const avatarMeta = getAvatarMeta(task.avatar);
+    const avatar = document.createElement('button');
+    avatar.type = 'button';
+    avatar.className = `task-avatar${task.avatar && task.avatar !== 'none' ? ' assigned' : ''}`;
+    avatar.title = column === 'done' ? avatarMeta.label : `${avatarMeta.label} · click to change icon`;
+    avatar.innerHTML = `<i class="fas ${avatarMeta.icon}"></i>`;
+    avatar.addEventListener('click', (e) => openAvatarMenu(e, task.id));
+
     const title = document.createElement('h4');
     title.className = 'task-title';
     title.textContent = task.title;
+
+    const titleRow = document.createElement('div');
+    titleRow.className = 'task-title-row';
+    titleRow.appendChild(avatar);
+    titleRow.appendChild(title);
 
     const desc = document.createElement('p');
     desc.className = 'task-desc-excerpt';
@@ -127,8 +144,22 @@ function createTaskCardDOM(task) {
     footer.appendChild(actionsLeft);
     footer.appendChild(arrows);
 
+    if (column !== 'done') {
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => {
+            card.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', task.id);
+        });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    }
+    card.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showContextMenu(e.clientX, e.clientY, task.id);
+    });
+
     card.appendChild(header);
-    card.appendChild(title);
+    card.appendChild(titleRow);
     card.appendChild(desc);
     card.appendChild(footer);
     return card;
