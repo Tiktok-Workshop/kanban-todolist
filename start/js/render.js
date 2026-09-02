@@ -60,7 +60,11 @@ function createTaskCardDOM(task) {
     card.innerHTML = `
         <div class="task-header">
             <span class="badge-priority ${task.priority}" onclick="openBadgePriorityMenu(event, '${task.id}')">${task.priority}</span>
-            <button class="btn-card-action" title="Delete task" onclick="deleteTask('${task.id}')"><i class="fas fa-trash-alt"></i></button>
+            ${buildDevinStatusPill(task)}
+            <div class="task-header-actions">
+                ${buildDevinCardButton(task)}
+                <button class="btn-card-action" title="Delete task" onclick="deleteTask('${task.id}')"><i class="fas fa-trash-alt"></i></button>
+            </div>
         </div>
         <h4 class="task-title"></h4>
         ${task.desc
@@ -90,6 +94,31 @@ function createTaskCardDOM(task) {
     });
 
     return card;
+}
+
+function buildDevinCardButton(task) {
+    if (!devinEnabled) return '';
+    if (task.devinSessionId) {
+        return `<button class="btn-card-action btn-devin-open" title="Open Devin session" onclick="openDevinSession('${task.id}')"><i class="fas fa-arrow-up-right-from-square"></i></button>`;
+    }
+    if (task.column !== 'todo') return '';
+    return `<button class="btn-card-action btn-devin" title="Run with Devin" onclick="openDevinModal('${task.id}')"><i class="fas fa-robot"></i></button>`;
+}
+
+function buildDevinStatusPill(task) {
+    if (!task.devinSessionId) return '';
+
+    const label = devinStatusLabel(task);
+    const classes = ['devin-status-pill', `devin-${label.replace(/\s+/g, '-')}`];
+    if (isDevinWorking(task)) classes.push('devin-working');
+
+    const icon = isDevinWorking(task) ? 'fa-spinner fa-spin' : 'fa-robot';
+    if (!task.devinSessionUrl) {
+        return `<span class="${classes.join(' ')}"><i class="fas ${icon}"></i>${label}</span>`;
+    }
+
+    classes.push('devin-clickable');
+    return `<span class="${classes.join(' ')}" title="Open Devin session" onclick="openDevinSession('${task.id}')"><i class="fas ${icon}"></i>${label}</span>`;
 }
 
 function buildNavArrows(task) {
