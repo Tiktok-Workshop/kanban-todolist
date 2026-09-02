@@ -96,6 +96,17 @@ function createTaskCardDOM(task) {
     headerRight.appendChild(del);
 
     header.appendChild(badge);
+    if (task.devinSessionId) {
+        const working = isDevinWorking(task);
+        const label = devinStatusLabel(task);
+        const pill = document.createElement('span');
+        pill.className = `devin-status-pill devin-${label.replace(/\s+/g, '-').toLowerCase()}${working ? ' devin-working' : ''}${task.devinSessionUrl ? ' devin-clickable' : ''}`;
+        pill.title = task.devinSessionUrl ? 'Open Devin session' : 'Devin session status';
+        pill.innerHTML = `<i class="fas ${working ? 'fa-spinner fa-spin' : 'fa-robot'}"></i> `;
+        pill.appendChild(document.createTextNode(label));
+        if (task.devinSessionUrl) pill.addEventListener('click', () => openDevinSession(task.id));
+        header.appendChild(pill);
+    }
     header.appendChild(headerRight);
 
     const title = document.createElement('h4');
@@ -119,6 +130,11 @@ function createTaskCardDOM(task) {
     actionsLeft.innerHTML = column === 'done'
         ? `<button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="View Task"><i class="fas fa-expand-alt"></i></button>`
         : `<button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="Edit Task"><i class="fas fa-pencil-alt"></i></button>`;
+    if (devinEnabled && column === 'todo' && !task.devinSessionId) {
+        actionsLeft.innerHTML += `<button class="btn-card-action btn-devin" onclick="openDevinModal('${task.id}')" title="Run with Devin"><i class="fas fa-robot"></i></button>`;
+    } else if (task.devinSessionId) {
+        actionsLeft.innerHTML += `<button class="btn-card-action btn-devin-open" onclick="openDevinSession('${task.id}')" title="Open Devin session"><i class="fas fa-arrow-up-right-from-square"></i></button>`;
+    }
     const arrows = document.createElement('div');
     arrows.className = 'card-nav-arrows';
 

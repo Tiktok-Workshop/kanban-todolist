@@ -6,4 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setActiveTab(state.activeTab || 'todo');
     render();
     setInterval(renderTimestampsOnly, 30000);
+    refreshDevinConfig();
+    startDevinPolling();
+    pollDevinSessions();
 });

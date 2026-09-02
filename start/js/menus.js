@@ -24,6 +24,16 @@ function showContextMenu(x, y, taskId) {
     };
     Object.keys(disabled).forEach(id => document.getElementById(id).classList.toggle('disabled', disabled[id]));
 
+    const ctxRunDevin = document.getElementById('ctxRunDevin');
+    const ctxOpenDevin = document.getElementById('ctxOpenDevin');
+    const canRunDevin = (typeof devinEnabled !== 'undefined' && devinEnabled) && task.column === 'todo' && !task.devinSessionId;
+    const canOpenDevin = Boolean(task.devinSessionId && task.devinSessionUrl);
+    ctxRunDevin.style.display = canRunDevin ? 'flex' : 'none';
+    ctxOpenDevin.style.display = canOpenDevin ? 'flex' : 'none';
+    document.getElementById('ctxDevinDivider').style.display = (canRunDevin || canOpenDevin) ? 'block' : 'none';
+    ctxRunDevin.onclick = () => { hideContextMenu(); if (canRunDevin) openDevinModal(taskId); };
+    ctxOpenDevin.onclick = () => { hideContextMenu(); if (canOpenDevin) openDevinSession(taskId); };
+
     menu.classList.remove('hidden');
     const rect = menu.getBoundingClientRect();
     const left = Math.min(x, window.innerWidth - rect.width - 8);
