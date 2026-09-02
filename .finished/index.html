@@ -14,6 +14,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="css/styles.css">
+    <script>
+        // Apply the saved theme before first paint to avoid a light-mode flash
+        (function () {
+            var t = localStorage.getItem('daily-task-tracker-theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
 </head>
 <body>
 
@@ -45,6 +52,10 @@
                     <option value="priority-desc">Highest Priority</option>
                     <option value="title-asc">Title (A-Z)</option>
                 </select>
+
+                <button id="themeToggleBtn" class="btn-theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
+                </button>
 
                 <div class="header-actions-dropdown">
                     <button id="headerActionsBtn" class="btn-bulk-neutral" title="Board actions">

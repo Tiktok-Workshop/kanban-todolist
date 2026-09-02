@@ -6,8 +6,13 @@
             /* Base Canvas and Surface Backgrounds */
             --bg-main: #f8fafc;          /* Gentle slate canvas */
             --bg-card: #ffffff;          /* Pure pristine white for cards and modals */
+            --bg-subtle: #f8fafc;        /* Slightly recessed surfaces (columns, footers) */
+            --bg-hover: #f1f5f9;         /* Hover fills for neutral controls */
+            --bg-badge: #e2e8f0;         /* Count badges and pill backgrounds */
             --border-color: #e2e8f0;     /* Soft slate border for subtle nesting */
+            --border-hover: #cbd5e1;     /* Slightly darker border on hover */
             --border-focus: #00f2ea;     /* Aqua accent for focused controls */
+            --logo-text: #000000;        /* First word of the tri-color title */
             
             /* High-Contrast Typography Hierarchy (Slate scale) */
             --text-primary: #0f172a;     /* Slate 900: Titles & Headers */
@@ -42,6 +47,83 @@
             
             /* Micro-interaction Animation Timing */
             --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Dark mode: same aqua/pink brand palette on neutral gray surfaces */
+        [data-theme="dark"] {
+            --bg-main: #1f2937;
+            --bg-card: #2b3441;
+            --bg-subtle: #242c38;
+            --bg-hover: #374151;
+            --bg-badge: #4b5563;
+            --border-color: #3f4753;
+            --border-hover: #6b7280;
+            --logo-text: #f9fafb;
+
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --text-muted: #9ca3af;
+
+            --primary-light: rgba(0, 242, 234, 0.14);
+
+            --priority-low-bg: rgba(16, 185, 129, 0.16);
+            --priority-low-text: #34d399;
+            --priority-medium-bg: rgba(245, 158, 11, 0.16);
+            --priority-medium-text: #fbbf24;
+            --priority-high-bg: rgba(244, 63, 94, 0.16);
+            --priority-high-text: #fb7185;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+        }
+        [data-theme="dark"] input,
+        [data-theme="dark"] textarea,
+        [data-theme="dark"] select {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            color-scheme: dark;
+        }
+        [data-theme="dark"] .desc-textarea-field {
+            background-color: transparent;
+        }
+        [data-theme="dark"] .btn-bulk-neutral {
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+        [data-theme="dark"] .btn-bulk-neutral:hover {
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+        [data-theme="dark"] .btn-card-action.btn-devin,
+        [data-theme="dark"] .btn-card-action.btn-devin-open,
+        [data-theme="dark"] .devin-status-pill {
+            color: var(--primary);
+        }
+        [data-theme="dark"] .devin-status-pill.devin-finished,
+        [data-theme="dark"] .devin-status-pill.devin-complete {
+            background-color: rgba(16, 185, 129, 0.16);
+            color: #34d399;
+        }
+        [data-theme="dark"] .devin-status-pill.devin-error,
+        [data-theme="dark"] .devin-status-pill.devin-suspended {
+            background-color: rgba(244, 63, 94, 0.16);
+            color: #fb7185;
+        }
+        [data-theme="dark"] .devin-status-pill.devin-waiting,
+        [data-theme="dark"] .devin-status-pill.devin-blocked {
+            background-color: rgba(245, 158, 11, 0.16);
+            color: #fbbf24;
+        }
+        [data-theme="dark"] .btn-bulk-danger {
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+        [data-theme="dark"] .btn-bulk-danger:hover,
+        [data-theme="dark"] .context-menu-item.danger:hover {
+            background-color: rgba(239, 68, 68, 0.16);
+        }
+        [data-theme="dark"] .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
         }
 
         /* ==========================================================================
@@ -107,7 +189,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
-            background: #fff;
+            background: var(--bg-card);
             flex-shrink: 0;              /* Blocks dynamic shrinkage during window resizing */
         }
 
@@ -119,7 +201,7 @@
             user-select: none;
         }
         .logo .todo-text {
-            color: #000000;
+            color: var(--logo-text);
             margin-right: 2px;
         }
         .logo .list-text {
@@ -171,7 +253,7 @@
             border-radius: 8px;
             font-size: 0.85rem;
             outline: none;
-            background-color: #fff;
+            background-color: var(--bg-card);
             color: var(--text-secondary);
             cursor: pointer;
             transition: var(--transition-smooth);
@@ -182,7 +264,7 @@
 
         /* Destructive System Action Buttons */
         .btn-bulk-danger {
-            background-color: #fff;
+            background-color: var(--bg-card);
             border: 1px solid #fee2e2;
             color: #ef4444;
             padding: 7px 12px;
@@ -202,7 +284,7 @@
 
         /* Neutral System Action Buttons (non-destructive) */
         .btn-bulk-neutral {
-            background-color: #fff;
+            background-color: var(--bg-card);
             border: 1px solid var(--primary-light);
             color: var(--primary-contrast);
             padding: 7px 12px;
@@ -220,18 +302,42 @@
             border-color: var(--primary);
         }
 
+        /* Light / dark theme toggle */
+        .btn-theme-toggle {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+        .btn-theme-toggle:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+        .btn-theme-toggle .fa-sun { display: none; }
+        [data-theme="dark"] .btn-theme-toggle .fa-sun { display: inline-block; }
+        [data-theme="dark"] .btn-theme-toggle .fa-moon { display: none; }
+
         /* ==========================================================================
            5. INLINE TASK CREATION ENGINE (MODAL-LESS ADDING INTERFACE)
            ========================================================================== */
         .add-todo-wrapper {
             padding: 16px 24px 12px 24px;
-            background-color: #f8fafc;
+            background-color: var(--bg-subtle);
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
         }
 
         .add-todo-card {
-            background: #fff;
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             box-shadow: var(--shadow-sm);
@@ -313,7 +419,7 @@
             overflow: hidden;
             transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
             border-top: 0 solid var(--border-color);
-            background-color: #fafafa;
+            background-color: var(--bg-subtle);
         }
         
         /* Expands when active input criteria are validated */
@@ -352,7 +458,7 @@
         .mobile-board-tabs {
             display: none;
             border-bottom: 1px solid var(--border-color);
-            background: #ffffff;
+            background: var(--bg-card);
             padding: 6px;
             gap: 6px;
             flex-shrink: 0;
@@ -361,7 +467,7 @@
             flex: 1;
             padding: 8px 4px;
             border: none;
-            background: #f1f5f9;         /* Gutter segmented layout */
+            background: var(--bg-hover);         /* Gutter segmented layout */
             border-radius: 8px;
             font-size: 0.8rem;
             font-weight: 600;
@@ -378,7 +484,7 @@
             color: var(--primary);
         }
         .mobile-tab-btn .badge {
-            background-color: #e2e8f0;
+            background-color: var(--bg-badge);
             color: var(--text-secondary);
             font-size: 0.7rem;
             padding: 1px 6px;
@@ -398,12 +504,12 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             padding: 16px 24px;
-            background-color: #ffffff;
+            background-color: var(--bg-card);
             overflow: hidden;
         }
 
         .board-column {
-            background-color: #f8fafc;
+            background-color: var(--bg-subtle);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             display: flex;
@@ -444,7 +550,7 @@
             color: var(--text-primary);
         }
         .column-count {
-            background-color: #e2e8f0;
+            background-color: var(--bg-badge);
             color: var(--text-secondary);
             font-size: 0.75rem;
             font-weight: 600;
@@ -488,7 +594,7 @@
         }
         .task-card:hover {
             box-shadow: var(--shadow-md);
-            border-color: #cbd5e1;
+            border-color: var(--border-hover);
         }
 
         /* Left-side visual priority indicators */
@@ -564,7 +670,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid var(--bg-hover);
             padding-top: 8px;
             margin-top: 4px;
         }
@@ -591,7 +697,7 @@
             transition: var(--transition-smooth);
         }
         .btn-card-action:hover {
-            background-color: #f1f5f9;
+            background-color: var(--bg-hover);
             color: var(--text-primary);
         }
         /* Header "Actions" dropdown (bulk board operations) */
@@ -603,7 +709,7 @@
             position: absolute;
             top: calc(100% + 6px);
             right: 0;
-            background: #fff;
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             box-shadow: var(--shadow-lg);
@@ -694,7 +800,7 @@
             gap: 3px;
         }
         .btn-arrow {
-            background: #f1f5f9;
+            background: var(--bg-hover);
             border: none;
             outline: none;
             width: 24px;
@@ -709,7 +815,7 @@
             transition: var(--transition-smooth);
         }
         .btn-arrow:hover {
-            background-color: #e2e8f0;
+            background-color: var(--bg-badge);
             color: var(--text-primary);
         }
 
@@ -739,7 +845,7 @@
         .empty-column-placeholder i {
             font-size: 1.8rem;
             margin-bottom: 8px;
-            color: #cbd5e1;
+            color: var(--border-hover);
         }
         .empty-column-placeholder p {
             font-size: 0.78rem;
@@ -751,7 +857,7 @@
            ========================================================================== */
         .badge-dropdown-menu {
             position: absolute;
-            background: #fff;
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             box-shadow: var(--shadow-lg);
@@ -796,7 +902,7 @@
            ========================================================================== */
         .custom-context-menu {
             position: absolute;
-            background: #fff;
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             box-shadow: var(--shadow-lg);
@@ -820,7 +926,7 @@
             transition: var(--transition-smooth);
         }
         .context-menu-item:hover {
-            background-color: #f1f5f9;
+            background-color: var(--bg-hover);
             color: var(--text-primary);
         }
         .context-menu-item.danger {
@@ -866,7 +972,7 @@
         }
 
         .modal-container {
-            background-color: #fff;
+            background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             width: 90%;
@@ -915,7 +1021,7 @@
         .modal-footer {
             padding: 12px 20px;
             border-top: 1px solid var(--border-color);
-            background-color: #f8fafc;
+            background-color: var(--bg-subtle);
             display: flex;
             align-items: center;
             justify-content: flex-end;
@@ -974,12 +1080,12 @@
             transition: var(--transition-smooth);
         }
         .btn-secondary {
-            background-color: #fff;
+            background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
         .btn-secondary:hover {
-            background-color: #f1f5f9;
+            background-color: var(--bg-hover);
             color: var(--text-primary);
         }
         .btn-primary {
@@ -1003,7 +1109,7 @@
             flex-direction: column;
             gap: 8px;
             padding: 10px 12px;
-            background-color: #f8fafc;
+            background-color: var(--bg-subtle);
             border-radius: 8px;
             border: 1px solid var(--border-color);
         }
@@ -1034,7 +1140,7 @@
             pointer-events: none;
         }
         .toast {
-            background-color: #fff;
+            background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-left: 4px solid var(--primary);
             box-shadow: var(--shadow-lg);
