@@ -1,5 +1,5 @@
 const LOCAL_STORAGE_KEY = 'daily-task-tracker';
-let state = { tasks: [], filterPriority: 'all', sortBy: 'date-desc', searchQuery: '' };
+let state = { tasks: [], filterPriority: 'all', sortBy: 'date-desc', searchQuery: '', activeTab: 'todo' };
 
 function createDemoTasks() {
     return [
@@ -15,13 +15,18 @@ function loadFromStorage() {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
         try {
-            state = Object.assign({ tasks: [], filterPriority: 'all', sortBy: 'date-desc' }, JSON.parse(saved));
+            state = Object.assign({ tasks: [], filterPriority: 'all', sortBy: 'date-desc', activeTab: 'todo' }, JSON.parse(saved));
         } catch (e) { console.error('Storage loading error:', e); }
         state.searchQuery = '';
     } else {
         state.tasks = createDemoTasks();
         saveToStorage();
     }
+}
+
+function loadDemoData() {
+    state.tasks = createDemoTasks();
+    saveToStorage();
 }
 
 function saveToStorage() {
