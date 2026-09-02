@@ -7,10 +7,30 @@ const EMPTY_STATES = {
 };
 
 function render() {
+    let filteredTasks = [...state.tasks];
+    if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        filteredTasks = filteredTasks.filter(t =>
+            t.title.toLowerCase().includes(q) || (t.desc || '').toLowerCase().includes(q));
+    }
+    if (state.filterPriority !== 'all') {
+        filteredTasks = filteredTasks.filter(t => t.priority === state.filterPriority);
+    }
+    filteredTasks.sort((a, b) => {
+        if (state.sortBy === 'date-desc') return b.createdAt - a.createdAt;
+        if (state.sortBy === 'date-asc') return a.createdAt - b.createdAt;
+        if (state.sortBy === 'priority-desc') {
+            const w = { high: 3, medium: 2, low: 1 };
+            return w[b.priority] - w[a.priority];
+        }
+        if (state.sortBy === 'title-asc') return a.title.localeCompare(b.title);
+        return 0;
+    });
+
     const counts = { todo: 0, progress: 0, done: 0 };
     Object.values(COLUMN_BODIES).forEach(id => { document.getElementById(id).innerHTML = ''; });
 
-    state.tasks.forEach(task => {
+    filteredTasks.forEach(task => {
         const column = COLUMN_BODIES[task.column] ? task.column : 'todo';
         document.getElementById(COLUMN_BODIES[column]).appendChild(createTaskCardDOM(task));
         counts[column]++;
@@ -40,7 +60,16 @@ function createMoveArrows(task) {
     }
 }
 
+function renderTimestampsOnly() {
+    document.querySelectorAll('.task-card').forEach(card => {
+        const task = state.tasks.find(t => t.id === card.dataset.id);
+        const timeEl = card.querySelector('.task-time');
+        if (task && timeEl) timeEl.textContent = formatRelativeTime(task.createdAt);
+    });
+}
+
 function createTaskCardDOM(task) {
+    const isDone = task.column === 'done';
     const card = document.createElement('article');
     card.className = `task-card priority-${task.priority}`;
     card.dataset.id = task.id;
@@ -48,12 +77,15 @@ function createTaskCardDOM(task) {
     card.innerHTML = `
         <div class="task-header">
             <span class="badge-priority ${task.priority}">${task.priority}</span>
+            <span class="task-time">${formatRelativeTime(task.createdAt)}</span>
             <button class="btn-card-action" title="Delete" onclick="deleteTask('${task.id}')"><i class="fas fa-trash-alt"></i></button>
         </div>
         <h4 class="task-title"></h4>
         <p class="task-desc-excerpt"></p>
         <div class="task-footer">
-            <div class="card-actions-left"></div>
+            <div class="card-actions-left">
+                <button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="${isDone ? 'View Task' : 'Edit Task'}"><i class="fas ${isDone ? 'fa-expand-alt' : 'fa-pencil-alt'}"></i></button>
+            </div>
             <div class="card-nav-arrows">${createMoveArrows(task)}</div>
         </div>
     `;

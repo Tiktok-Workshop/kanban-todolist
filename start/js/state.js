@@ -1,5 +1,5 @@
 const LOCAL_STORAGE_KEY = 'daily-task-tracker';
-let state = { tasks: [] };
+let state = { tasks: [], filterPriority: 'all', sortBy: 'date-desc', searchQuery: '' };
 
 function createDemoTasks() {
     return [
@@ -19,12 +19,16 @@ function loadFromStorage() {
         state.tasks = createDemoTasks();
         saveToStorage();
     }
+    state.searchQuery = '';
+    if (!state.filterPriority) state.filterPriority = 'all';
+    if (!state.sortBy) state.sortBy = 'date-desc';
     state.tasks.forEach(t => {
         if (!t.priority) t.priority = 'low';
         if (t.desc === undefined) t.desc = '';
         if (!t.column) t.column = 'todo';
         if (t.completed === undefined) t.completed = false;
         if (t.editedAt === undefined) t.editedAt = null;
+        if (typeof t.createdAt === 'string') t.createdAt = new Date(t.createdAt).getTime();
     });
 }
 
