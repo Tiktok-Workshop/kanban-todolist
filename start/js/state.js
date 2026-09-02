@@ -5,7 +5,8 @@ let state = {
     tasks: [],
     filterPriority: 'all',
     sortBy: 'date-desc',
-    searchQuery: ''
+    searchQuery: '',
+    activeTab: 'todo'
 };
 
 function createDemoTasks() {
@@ -18,6 +19,11 @@ function createDemoTasks() {
     ];
 }
 
+function loadDemoData() {
+    state.tasks = createDemoTasks();
+    saveToStorage();
+}
+
 function loadFromStorage() {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
@@ -25,6 +31,7 @@ function loadFromStorage() {
         state.filterPriority = state.filterPriority || 'all';
         state.sortBy = state.sortBy || 'date-desc';
         state.searchQuery = '';
+        state.activeTab = state.activeTab || 'todo';
     } else {
         state.tasks = createDemoTasks();
         saveToStorage();

@@ -4,6 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('priorityFilter').value = state.filterPriority || 'all';
     document.getElementById('sortBySelect').value = state.sortBy || 'date-desc';
 
+    document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === state.activeTab);
+    });
+    document.querySelectorAll('.board-column').forEach(col => {
+        col.classList.toggle('active-tab', col.getAttribute('data-column') === state.activeTab);
+    });
+
     setupEventListeners();
     render();
 

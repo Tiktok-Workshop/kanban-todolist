@@ -16,6 +16,12 @@ const EMPTY_STATES = {
     done: { icon: 'fa-check-double', message: 'No completed tasks yet.' }
 };
 
+const TAB_BADGES = {
+    todo: 'todoTabBadge',
+    progress: 'progressTabBadge',
+    done: 'doneTabBadge'
+};
+
 const PRIORITY_WEIGHT = { high: 3, medium: 2, low: 1 };
 
 function getVisibleTasks() {
@@ -59,6 +65,7 @@ function render() {
 
     Object.keys(counts).forEach(column => {
         document.getElementById(COLUMN_COUNTS[column]).textContent = counts[column];
+        document.getElementById(TAB_BADGES[column]).textContent = counts[column];
         checkEmptyState(column, counts[column]);
     });
 }
@@ -87,7 +94,7 @@ function createTaskCardDOM(task) {
 
     card.innerHTML = `
         <div class="task-header">
-            <span class="badge-priority ${priority}">${priority}</span>
+            <span class="badge-priority ${priority}" onclick="openBadgePriorityMenu(event, '${task.id}')" title="Change priority">${priority}</span>
             <span class="task-time">${formatRelativeTime(task.createdAt)}</span>
         </div>
         <h4 class="task-title"></h4>
@@ -103,6 +110,21 @@ function createTaskCardDOM(task) {
 
     card.querySelector('.task-title').textContent = task.title;
     if (task.desc) card.querySelector('.task-desc-excerpt').textContent = task.desc;
+
+    if (!isDone) {
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => {
+            card.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', task.id);
+        });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    }
+
+    card.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showContextMenu(e.clientX, e.clientY, task.id);
+    });
 
     return card;
 }
