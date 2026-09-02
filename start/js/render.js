@@ -1,25 +1,55 @@
-function render() {
-    const list = document.getElementById('taskList');
-    list.innerHTML = '';
+const COLUMN_BODIES = {
+    todo: 'bodyTodo',
+    progress: 'bodyProgress',
+    done: 'bodyDone'
+};
 
-    if (state.tasks.length === 0) {
-        const empty = document.createElement('p');
-        empty.className = 'empty-message';
-        empty.textContent = 'No tasks yet — add your first one above!';
-        list.appendChild(empty);
-        return;
-    }
+const COLUMN_COUNTS = {
+    todo: 'countTodo',
+    progress: 'countProgress',
+    done: 'countDone'
+};
+
+const EMPTY_STATES = {
+    todo: { icon: 'fa-clipboard-list', message: 'No tasks listed here.' },
+    progress: { icon: 'fa-spinner', message: 'Nothing in progress.' },
+    done: { icon: 'fa-check-double', message: 'No completed tasks yet.' }
+};
+
+function render() {
+    const counts = { todo: 0, progress: 0, done: 0 };
+
+    Object.values(COLUMN_BODIES).forEach(id => {
+        document.getElementById(id).innerHTML = '';
+    });
 
     state.tasks.forEach(task => {
-        list.appendChild(createTaskCard(task));
+        const column = COLUMN_BODIES[task.column] ? task.column : 'todo';
+        document.getElementById(COLUMN_BODIES[column]).appendChild(createTaskCardDOM(task));
+        counts[column]++;
+    });
+
+    Object.keys(counts).forEach(column => {
+        document.getElementById(COLUMN_COUNTS[column]).textContent = counts[column];
+        checkEmptyState(column, counts[column]);
     });
 }
 
-function createTaskCard(task) {
+function checkEmptyState(column, count) {
+    if (count > 0) return;
+    const { icon, message } = EMPTY_STATES[column];
+    const placeholder = document.createElement('div');
+    placeholder.className = 'empty-column-placeholder';
+    placeholder.innerHTML = `<i class="fas ${icon}"></i><p>${message}</p>`;
+    document.getElementById(COLUMN_BODIES[column]).appendChild(placeholder);
+}
+
+function createTaskCardDOM(task) {
     const priority = task.priority || 'low';
 
-    const card = document.createElement('div');
+    const card = document.createElement('article');
     card.className = `task-card priority-${priority}`;
+    card.dataset.id = task.id;
 
     const header = document.createElement('div');
     header.className = 'task-header';
@@ -37,7 +67,7 @@ function createTaskCard(task) {
     header.appendChild(badge);
     header.appendChild(deleteBtn);
 
-    const title = document.createElement('div');
+    const title = document.createElement('h4');
     title.className = 'task-title';
     title.textContent = task.title;
 
@@ -51,8 +81,32 @@ function createTaskCard(task) {
         desc.style.fontStyle = 'italic';
     }
 
+    const footer = document.createElement('div');
+    footer.className = 'task-footer';
+    footer.appendChild(createNavArrows(task));
+
     card.appendChild(header);
     card.appendChild(title);
     card.appendChild(desc);
+    card.appendChild(footer);
     return card;
+}
+
+function createNavArrows(task) {
+    const arrows = document.createElement('div');
+    arrows.className = 'card-nav-arrows';
+
+    if (task.column === 'progress' || task.column === 'done') {
+        const target = task.column === 'done' ? 'progress' : 'todo';
+        const label = task.column === 'done' ? 'Move to Progress' : 'Move to To Do';
+        arrows.innerHTML += `<button class="btn-arrow" onclick="moveTask('${task.id}', '${target}')" title="${label}"><i class="fas fa-arrow-left"></i></button>`;
+    }
+
+    if (task.column === 'todo' || task.column === 'progress') {
+        const target = task.column === 'todo' ? 'progress' : 'done';
+        const label = task.column === 'todo' ? 'Move to Progress' : 'Move to Done';
+        arrows.innerHTML += `<button class="btn-arrow" onclick="moveTask('${task.id}', '${target}')" title="${label}"><i class="fas fa-arrow-right"></i></button>`;
+    }
+
+    return arrows;
 }
