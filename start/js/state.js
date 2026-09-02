@@ -6,6 +6,7 @@ function loadFromStorage() {
     if (saved) {
         try { state = JSON.parse(saved); } catch (e) { console.error('Storage loading error:', e); }
     }
+    state.tasks = (state.tasks || []).map(t => ({ priority: 'low', desc: '', ...t }));
 }
 
 function saveToStorage() {
