@@ -19,7 +19,22 @@ function addNewTodo() {
 }
 
 function deleteTask(taskId) {
-    state.tasks = state.tasks.filter(t => t.id !== taskId);
+    const index = state.tasks.findIndex(t => t.id === taskId);
+    if (index === -1) return;
+    const [removed] = state.tasks.splice(index, 1);
+    saveToStorage();
+    render();
+
+    showToast(`Deleted "${removed.title}"`, {
+        actionLabel: 'Undo',
+        duration: 5000,
+        onAction: () => restoreTask(removed, index)
+    });
+}
+
+function restoreTask(task, index) {
+    if (state.tasks.some(t => t.id === task.id)) return;
+    state.tasks.splice(Math.min(index, state.tasks.length), 0, task);
     saveToStorage();
     render();
 }
