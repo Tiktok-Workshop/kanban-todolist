@@ -16,6 +16,32 @@ const EMPTY_STATES = {
     done: { icon: 'fa-check-double', message: 'No completed tasks yet.' }
 };
 
+const PRIORITY_WEIGHT = { high: 3, medium: 2, low: 1 };
+
+function getVisibleTasks() {
+    let filteredTasks = [...state.tasks];
+
+    if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        filteredTasks = filteredTasks.filter(t =>
+            t.title.toLowerCase().includes(q) || (t.desc || '').toLowerCase().includes(q));
+    }
+
+    if (state.filterPriority !== 'all') {
+        filteredTasks = filteredTasks.filter(t => t.priority === state.filterPriority);
+    }
+
+    filteredTasks.sort((a, b) => {
+        if (state.sortBy === 'date-desc') return b.createdAt - a.createdAt;
+        if (state.sortBy === 'date-asc') return a.createdAt - b.createdAt;
+        if (state.sortBy === 'priority-desc') return PRIORITY_WEIGHT[b.priority] - PRIORITY_WEIGHT[a.priority];
+        if (state.sortBy === 'title-asc') return a.title.localeCompare(b.title);
+        return 0;
+    });
+
+    return filteredTasks;
+}
+
 function render() {
     const bodies = {};
     const counts = { todo: 0, progress: 0, done: 0 };
@@ -25,7 +51,7 @@ function render() {
         bodies[column].innerHTML = '';
     });
 
-    state.tasks.forEach(task => {
+    getVisibleTasks().forEach(task => {
         const column = bodies[task.column] ? task.column : 'todo';
         bodies[column].appendChild(createTaskCardDOM(task));
         counts[column]++;
@@ -49,6 +75,7 @@ function checkEmptyState(column, count) {
 
 function createTaskCardDOM(task) {
     const priority = task.priority || 'low';
+    const isDone = task.column === 'done';
 
     const card = document.createElement('article');
     card.className = `task-card priority-${priority}`;
@@ -61,12 +88,16 @@ function createTaskCardDOM(task) {
     card.innerHTML = `
         <div class="task-header">
             <span class="badge-priority ${priority}">${priority}</span>
+            <span class="task-time">${formatRelativeTime(task.createdAt)}</span>
         </div>
         <h4 class="task-title"></h4>
         ${descHTML}
         <div class="task-footer">
             <div class="card-nav-arrows">${buildNavArrows(task)}</div>
-            <button class="btn-card-action" onclick="deleteTask('${task.id}')" title="Delete Task"><i class="fas fa-trash-alt"></i></button>
+            <div class="card-actions-left">
+                <button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="${isDone ? 'View Task' : 'Edit Task'}"><i class="fas ${isDone ? 'fa-expand-alt' : 'fa-pencil-alt'}"></i></button>
+                <button class="btn-card-action" onclick="deleteTask('${task.id}')" title="Delete Task"><i class="fas fa-trash-alt"></i></button>
+            </div>
         </div>
     `;
 
@@ -74,6 +105,13 @@ function createTaskCardDOM(task) {
     if (task.desc) card.querySelector('.task-desc-excerpt').textContent = task.desc;
 
     return card;
+}
+
+function renderTimestampsOnly() {
+    state.tasks.forEach(task => {
+        const timeLabel = document.querySelector(`.task-card[data-id="${task.id}"] .task-time`);
+        if (timeLabel) timeLabel.textContent = formatRelativeTime(task.createdAt);
+    });
 }
 
 function buildNavArrows(task) {
