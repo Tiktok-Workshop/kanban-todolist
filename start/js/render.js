@@ -41,6 +41,8 @@ function render() {
 
     Object.keys(COLUMN_META).forEach(column => {
         document.getElementById(COLUMN_META[column].countId).textContent = counts[column];
+        const tabBadge = document.getElementById(`${column}TabBadge`);
+        if (tabBadge) tabBadge.textContent = counts[column];
         checkEmptyState(column, counts[column]);
     });
 }
@@ -67,6 +69,8 @@ function createTaskCardDOM(task) {
     const badge = document.createElement('span');
     badge.className = `badge-priority ${priority}`;
     badge.textContent = priority;
+    badge.title = 'Change priority';
+    badge.addEventListener('click', (e) => openBadgePriorityMenu(e, task.id));
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-card-action';
@@ -112,6 +116,20 @@ function createTaskCardDOM(task) {
     card.appendChild(title);
     card.appendChild(desc);
     card.appendChild(footer);
+
+    if (!isDone) {
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => {
+            card.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', task.id);
+        });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    }
+    card.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showContextMenu(e.clientX, e.clientY, task.id);
+    });
     return card;
 }
 
