@@ -86,6 +86,16 @@ function createTaskCardDOM(task) {
     time.textContent = formatRelativeTime(task.createdAt);
 
     header.appendChild(badge);
+    if (task.devinSessionId) {
+        const working = isDevinWorking(task);
+        const label = devinStatusLabel(task);
+        const pill = document.createElement('span');
+        pill.className = `devin-status-pill devin-${label.replace(/\s+/g, '-').toLowerCase()}${working ? ' devin-working' : ''}${task.devinSessionUrl ? ' devin-clickable' : ''}`;
+        pill.title = task.devinSessionUrl ? 'Open Devin session' : 'Devin session status';
+        pill.innerHTML = `<i class="fas ${working ? 'fa-spinner fa-spin' : 'fa-robot'}"></i> ${label}`;
+        if (task.devinSessionUrl) pill.addEventListener('click', () => openDevinSession(task.id));
+        header.appendChild(pill);
+    }
     header.appendChild(time);
     header.appendChild(deleteBtn);
 
@@ -107,7 +117,13 @@ function createTaskCardDOM(task) {
     footer.className = 'task-footer';
     const isDone = task.column === 'done';
     const editBtn = `<button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="${isDone ? 'View Task' : 'Edit Task'}"><i class="fas ${isDone ? 'fa-expand-alt' : 'fa-pencil-alt'}"></i></button>`;
-    footer.innerHTML = `<div class="card-actions-left">${editBtn}</div><div class="card-nav-arrows">${moveArrowsHTML(task)}</div>`;
+    let devinButton = '';
+    if (typeof devinEnabled !== 'undefined' && devinEnabled && task.column === 'todo' && !task.devinSessionId) {
+        devinButton = `<button class="btn-card-action btn-devin" onclick="openDevinModal('${task.id}')" title="Run with Devin"><i class="fas fa-robot"></i></button>`;
+    } else if (task.devinSessionId) {
+        devinButton = `<button class="btn-card-action btn-devin-open" onclick="openDevinSession('${task.id}')" title="Open Devin session"><i class="fas fa-arrow-up-right-from-square"></i></button>`;
+    }
+    footer.innerHTML = `<div class="card-actions-left">${editBtn}${devinButton}</div><div class="card-nav-arrows">${moveArrowsHTML(task)}</div>`;
 
     card.appendChild(header);
     card.appendChild(title);
