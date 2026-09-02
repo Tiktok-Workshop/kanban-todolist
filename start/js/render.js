@@ -23,7 +23,7 @@ function render() {
         document.getElementById(id).innerHTML = '';
     });
 
-    state.tasks.forEach(task => {
+    getVisibleTasks().forEach(task => {
         const column = COLUMN_BODIES[task.column] ? task.column : 'todo';
         document.getElementById(COLUMN_BODIES[column]).appendChild(createTaskCardDOM(task));
         counts[column]++;
@@ -32,6 +32,40 @@ function render() {
     Object.keys(counts).forEach(column => {
         document.getElementById(COLUMN_COUNTS[column]).textContent = counts[column];
         checkEmptyState(column, counts[column]);
+    });
+}
+
+function getVisibleTasks() {
+    let tasks = [...state.tasks];
+
+    if (state.searchQuery) {
+        const query = state.searchQuery.toLowerCase();
+        tasks = tasks.filter(t =>
+            t.title.toLowerCase().includes(query) || (t.desc || '').toLowerCase().includes(query));
+    }
+
+    if (state.filterPriority !== 'all') {
+        tasks = tasks.filter(t => (t.priority || 'low') === state.filterPriority);
+    }
+
+    tasks.sort((a, b) => {
+        if (state.sortBy === 'date-desc') return b.createdAt - a.createdAt;
+        if (state.sortBy === 'date-asc') return a.createdAt - b.createdAt;
+        if (state.sortBy === 'priority-desc') {
+            const weight = { high: 3, medium: 2, low: 1 };
+            return weight[b.priority || 'low'] - weight[a.priority || 'low'];
+        }
+        if (state.sortBy === 'title-asc') return a.title.localeCompare(b.title);
+        return 0;
+    });
+
+    return tasks;
+}
+
+function renderTimestampsOnly() {
+    state.tasks.forEach(task => {
+        const time = document.querySelector(`.task-card[data-id="${task.id}"] .task-time`);
+        if (time) time.textContent = formatRelativeTime(task.createdAt);
     });
 }
 
@@ -58,14 +92,12 @@ function createTaskCardDOM(task) {
     badge.className = `badge-priority ${priority}`;
     badge.textContent = priority;
 
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'btn-card-action';
-    deleteBtn.title = 'Delete task';
-    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    deleteBtn.setAttribute('onclick', `deleteTask('${task.id}')`);
+    const time = document.createElement('span');
+    time.className = 'task-time';
+    time.textContent = formatRelativeTime(task.createdAt);
 
     header.appendChild(badge);
-    header.appendChild(deleteBtn);
+    header.appendChild(time);
 
     const title = document.createElement('h4');
     title.className = 'task-title';
@@ -83,13 +115,31 @@ function createTaskCardDOM(task) {
 
     const footer = document.createElement('div');
     footer.className = 'task-footer';
+    footer.appendChild(createCardActions(task));
     footer.appendChild(createNavArrows(task));
+
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        openTaskModal(task.id);
+    });
 
     card.appendChild(header);
     card.appendChild(title);
     card.appendChild(desc);
     card.appendChild(footer);
     return card;
+}
+
+function createCardActions(task) {
+    const isDone = task.column === 'done';
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions-left';
+    actions.innerHTML = `
+        <button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="${isDone ? 'View Task' : 'Edit Task'}"><i class="fas ${isDone ? 'fa-expand-alt' : 'fa-pencil-alt'}"></i></button>
+        <button class="btn-card-action" onclick="deleteTask('${task.id}')" title="Delete task"><i class="fas fa-trash-alt"></i></button>
+    `;
+    return actions;
 }
 
 function createNavArrows(task) {
