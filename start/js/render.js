@@ -21,6 +21,7 @@ function render() {
     Object.keys(counts).forEach(column => {
         document.getElementById(COLUMN_COUNTS[column]).textContent = counts[column];
         checkEmptyState(column, counts[column]);
+        document.getElementById(`${column}TabBadge`).textContent = counts[column];
     });
 }
 
@@ -76,6 +77,8 @@ function createTaskCardDOM(task) {
     const badge = document.createElement('span');
     badge.className = `badge-priority ${priority}`;
     badge.textContent = priority;
+    badge.title = 'Change priority';
+    badge.addEventListener('click', (e) => openBadgePriorityMenu(e, task.id));
 
     const del = document.createElement('button');
     del.className = 'btn-card-action';
@@ -137,5 +140,17 @@ function createTaskCardDOM(task) {
     card.appendChild(title);
     card.appendChild(desc);
     card.appendChild(footer);
+    card.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showContextMenu(e.clientX, e.clientY, task.id);
+    });
+
+    if (column !== 'done') {
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => { card.classList.add('dragging'); e.dataTransfer.setData('text/plain', task.id); });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    }
+
     return card;
 }

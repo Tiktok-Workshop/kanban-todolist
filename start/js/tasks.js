@@ -11,11 +11,11 @@ function addNewTodo() {
 
     if (!title) return;
     if (title.length < 3 || title.length > 40) {
-        alert('Title must be between 3 and 40 characters.');
+        showToast('Title must be between 3 and 40 characters.', 'warning');
         return;
     }
     if (desc.length > 150) {
-        alert('Description must be 150 characters or fewer.');
+        showToast('Description must be 150 characters or fewer.', 'warning');
         return;
     }
 
@@ -37,6 +37,7 @@ function addNewTodo() {
     document.getElementById('titleCounter').textContent = '40 left';
     document.getElementById('descCounter').textContent = '150 left';
     document.getElementById('addTodoCard').classList.remove('expanded');
+    showToast('Task added.', 'success');
 
     render();
 }
@@ -49,6 +50,7 @@ async function deleteTask(taskId) {
     state.tasks = state.tasks.filter(t => t.id !== taskId);
     saveToStorage();
     render();
+    showToast('Task deleted.', 'info');
 }
 
 function moveTask(taskId, targetColumn) {
@@ -57,7 +59,7 @@ function moveTask(taskId, targetColumn) {
     const oldColumn = task.column;
     if (targetColumn === 'done') {
         if (oldColumn === 'todo') {
-            alert('Move the task to In Progress before marking it Done.');
+            showToast('Move the task to In Progress before marking it Done.', 'warning');
             return;
         }
         task.completed = true;
@@ -67,6 +69,7 @@ function moveTask(taskId, targetColumn) {
     task.column = targetColumn;
     saveToStorage();
     render();
+    showToast(targetColumn === 'done' ? 'Task completed!' : 'Task moved.', targetColumn === 'done' ? 'success' : 'info');
 }
 
 function openTaskModal(taskId) {
@@ -107,11 +110,11 @@ function saveEditedTask() {
     const priority = document.getElementById('taskPriorityInput').value;
 
     if (title.length < 3 || title.length > 40) {
-        alert('Title must be between 3 and 40 characters.');
+        showToast('Title must be between 3 and 40 characters.', 'warning');
         return;
     }
     if (desc.length > 150) {
-        alert('Description must be 150 characters or fewer.');
+        showToast('Description must be 150 characters or fewer.', 'warning');
         return;
     }
 
@@ -122,4 +125,5 @@ function saveEditedTask() {
     saveToStorage();
     closeModal('taskModal');
     render();
+    showToast('Task updated.', 'success');
 }
