@@ -21,7 +21,9 @@ function createDemoTasks() {
 function loadFromStorage() {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
-        try { state = JSON.parse(saved); } catch (e) { console.error('Storage loading error:', e); }
+        try { state = { ...state, ...JSON.parse(saved) }; } catch (e) { console.error('Storage loading error:', e); }
+        state.filterPriority = state.filterPriority || 'all';
+        state.sortBy = state.sortBy || 'date-desc';
         state.searchQuery = '';
     } else {
         state.tasks = createDemoTasks();
