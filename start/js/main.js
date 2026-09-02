@@ -15,4 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
 
     setInterval(renderTimestampsOnly, 30000);
+
+    refreshDevinConfig();
+    startDevinPolling();
+    pollDevinSessions();
 });
