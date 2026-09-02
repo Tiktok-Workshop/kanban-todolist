@@ -15,6 +15,28 @@ function setupEventListeners() {
         document.getElementById('descCounter').textContent = `${150 - descInput.value.length} left`;
     });
 
+    document.getElementById('saveEditBtn').addEventListener('click', saveEditedTask);
+    document.getElementById('taskTitleInput').addEventListener('input', (e) => {
+        document.getElementById('taskTitleCounter').textContent = `${40 - e.target.value.length} left`;
+    });
+    document.getElementById('taskDescInput').addEventListener('input', (e) => {
+        document.getElementById('taskDescCounter').textContent = `${150 - e.target.value.length} left`;
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => { state.searchQuery = e.target.value.trim(); render(); });
+    document.getElementById('priorityFilter').addEventListener('change', (e) => { state.filterPriority = e.target.value; saveToStorage(); render(); });
+    document.getElementById('sortBySelect').addEventListener('change', (e) => { state.sortBy = e.target.value; saveToStorage(); render(); });
+    document.getElementById('priorityFilter').value = state.filterPriority;
+    document.getElementById('sortBySelect').value = state.sortBy;
+
+    document.getElementById('weeklyReportBtn').addEventListener('click', openWeeklyReport);
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay && overlay.id !== 'confirmModal') closeModal(overlay.id);
+        });
+    });
+
     titleInput.addEventListener('focus', () => addCard.classList.add('expanded'));
     document.addEventListener('click', (e) => {
         if (addCard.contains(e.target)) return;

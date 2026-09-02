@@ -1,3 +1,5 @@
+let editingTaskId = null;
+
 function addNewTodo() {
     const input = document.getElementById('todoTitleInput');
     const priorityInput = document.getElementById('todoPriorityInput');
@@ -54,14 +56,80 @@ function moveTask(taskId, targetColumn) {
             return;
         }
         task.completed = true;
+        task.completedAt = Date.now();
     }
-    if (targetColumn === 'todo' || targetColumn === 'progress') task.completed = false;
+    if (targetColumn === 'todo' || targetColumn === 'progress') {
+        task.completed = false;
+        task.completedAt = null;
+    }
     task.column = targetColumn;
     saveToStorage();
     render();
 }
 
-function deleteTask(taskId) {
+function openTaskModal(taskId) {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    editingTaskId = taskId;
+
+    const titleInput = document.getElementById('taskTitleInput');
+    const priorityInput = document.getElementById('taskPriorityInput');
+    const descInput = document.getElementById('taskDescInput');
+
+    titleInput.value = task.title;
+    priorityInput.value = task.priority || 'low';
+    descInput.value = task.desc || '';
+    document.getElementById('taskTitleCounter').textContent = `${40 - titleInput.value.length} left`;
+    document.getElementById('taskDescCounter').textContent = `${150 - descInput.value.length} left`;
+    document.getElementById('taskCreated').textContent = formatFullTime(task.createdAt);
+    document.getElementById('taskEdited').textContent = task.editedAt ? formatFullTime(task.editedAt) : 'Not edited yet';
+
+    const readOnly = task.column === 'done';
+    titleInput.disabled = readOnly;
+    priorityInput.disabled = readOnly;
+    descInput.disabled = readOnly;
+    document.getElementById('taskModalTitle').textContent = readOnly ? 'Task Details' : 'Edit Task';
+    document.getElementById('saveEditBtn').classList.toggle('hidden', readOnly);
+
+    openModal('taskModal');
+}
+const openViewModal = openTaskModal;
+const openEditModal = openTaskModal;
+
+function saveEditedTask() {
+    const task = state.tasks.find(t => t.id === editingTaskId);
+    if (!task) return;
+
+    const titleInput = document.getElementById('taskTitleInput');
+    const descInput = document.getElementById('taskDescInput');
+    const title = titleInput.value.trim();
+    const desc = descInput.value.trim();
+
+    if (title.length < 3 || title.length > 40) {
+        alert('Title must be between 3 and 40 characters.');
+        titleInput.focus();
+        return;
+    }
+    if (desc.length > 150) {
+        alert('Description must be 150 characters or fewer.');
+        descInput.focus();
+        return;
+    }
+
+    task.title = title;
+    task.desc = desc;
+    task.priority = document.getElementById('taskPriorityInput').value;
+    task.editedAt = Date.now();
+    saveToStorage();
+    closeModal('taskModal');
+    render();
+}
+
+async function deleteTask(taskId) {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const confirmed = await requestConfirmation('Delete Task', `Are you sure you want to permanently delete "${task.title}"?`);
+    if (!confirmed) return;
     state.tasks = state.tasks.filter(t => t.id !== taskId);
     saveToStorage();
     render();
