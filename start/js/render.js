@@ -93,18 +93,20 @@ function createTaskCardDOM(task) {
 }
 
 function createNavArrows(task) {
+    const column = COLUMN_BODIES[task.column] ? task.column : 'todo';
+
     const arrows = document.createElement('div');
     arrows.className = 'card-nav-arrows';
 
-    if (task.column === 'progress' || task.column === 'done') {
-        const target = task.column === 'done' ? 'progress' : 'todo';
-        const label = task.column === 'done' ? 'Move to Progress' : 'Move to To Do';
+    if (column === 'progress' || column === 'done') {
+        const target = column === 'done' ? 'progress' : 'todo';
+        const label = column === 'done' ? 'Move to Progress' : 'Move to To Do';
         arrows.innerHTML += `<button class="btn-arrow" onclick="moveTask('${task.id}', '${target}')" title="${label}"><i class="fas fa-arrow-left"></i></button>`;
     }
 
-    if (task.column === 'todo' || task.column === 'progress') {
-        const target = task.column === 'todo' ? 'progress' : 'done';
-        const label = task.column === 'todo' ? 'Move to Progress' : 'Move to Done';
+    if (column === 'todo' || column === 'progress') {
+        const target = column === 'todo' ? 'progress' : 'done';
+        const label = column === 'todo' ? 'Move to Progress' : 'Move to Done';
         arrows.innerHTML += `<button class="btn-arrow" onclick="moveTask('${task.id}', '${target}')" title="${label}"><i class="fas fa-arrow-right"></i></button>`;
     }
 
