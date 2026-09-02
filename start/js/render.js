@@ -10,6 +10,12 @@ const COLUMN_COUNTS = {
     done: 'countDone'
 };
 
+const COLUMN_TAB_BADGES = {
+    todo: 'todoTabBadge',
+    progress: 'progressTabBadge',
+    done: 'doneTabBadge'
+};
+
 const EMPTY_STATES = {
     todo: { icon: 'fa-clipboard-list', message: 'No tasks listed here.' },
     progress: { icon: 'fa-spinner', message: 'Nothing in progress.' },
@@ -31,6 +37,7 @@ function render() {
 
     Object.keys(counts).forEach(column => {
         document.getElementById(COLUMN_COUNTS[column]).textContent = counts[column];
+        document.getElementById(COLUMN_TAB_BADGES[column]).textContent = counts[column];
         checkEmptyState(column, counts[column]);
     });
 }
@@ -91,6 +98,7 @@ function createTaskCardDOM(task) {
     const badge = document.createElement('span');
     badge.className = `badge-priority ${priority}`;
     badge.textContent = priority;
+    badge.setAttribute('onclick', `openBadgePriorityMenu(event, '${task.id}')`);
 
     const time = document.createElement('span');
     time.className = 'task-time';
@@ -119,9 +127,24 @@ function createTaskCardDOM(task) {
     footer.appendChild(createNavArrows(task));
 
     card.addEventListener('click', (e) => {
-        if (e.target.closest('button')) return;
+        if (e.target.closest('button') || e.target.closest('.badge-priority')) return;
         openTaskModal(task.id);
     });
+
+    card.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showContextMenu(e.clientX, e.clientY, task.id);
+    });
+
+    if (task.column !== 'done') {
+        card.setAttribute('draggable', 'true');
+        card.addEventListener('dragstart', (e) => {
+            card.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', task.id);
+        });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    }
 
     card.appendChild(header);
     card.appendChild(title);
