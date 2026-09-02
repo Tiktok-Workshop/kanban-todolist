@@ -11,20 +11,22 @@ function render() {
     }
 
     state.tasks.forEach(task => {
-        const row = document.createElement('div');
-        row.className = 'task-row';
+        const card = document.createElement('div');
+        card.className = `task-card priority-${task.priority}`;
+        card.innerHTML = `
+            <div class="task-header">
+                <span class="badge-priority ${task.priority}">${task.priority}</span>
+                <button class="btn-card-action" title="Delete task" onclick="deleteTask('${task.id}')"><i class="fas fa-trash-alt"></i></button>
+            </div>
+            <div class="task-title"></div>
+            ${task.desc
+                ? '<p class="task-desc-excerpt"></p>'
+                : '<p class="task-desc-excerpt" style="color:var(--text-muted); font-style:italic;">No description provided.</p>'}
+        `;
 
-        const title = document.createElement('span');
-        title.className = 'task-title';
-        title.textContent = task.title;
+        card.querySelector('.task-title').textContent = task.title;
+        if (task.desc) card.querySelector('.task-desc-excerpt').textContent = task.desc;
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'task-delete';
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.setAttribute('onclick', `deleteTask('${task.id}')`);
-
-        row.appendChild(title);
-        row.appendChild(deleteBtn);
-        list.appendChild(row);
+        list.appendChild(card);
     });
 }
