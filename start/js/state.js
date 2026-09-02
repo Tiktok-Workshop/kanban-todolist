@@ -1,4 +1,6 @@
 const LOCAL_STORAGE_KEY = 'daily-task-tracker';
+
+// Task shape: { id, title, desc, priority, createdAt }
 let state = { tasks: [] };
 
 function loadFromStorage() {
