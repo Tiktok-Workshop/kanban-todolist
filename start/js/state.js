@@ -3,7 +3,8 @@ let state = {
     tasks: [],
     filterPriority: 'all',
     sortBy: 'date-desc',
-    searchQuery: ''
+    searchQuery: '',
+    activeTab: 'todo'
 };
 
 function createDemoTasks() {
@@ -23,8 +24,14 @@ function loadFromStorage() {
         state.filterPriority = state.filterPriority || 'all';
         state.sortBy = state.sortBy || 'date-desc';
         state.searchQuery = '';
+        state.activeTab = state.activeTab || 'todo';
         return;
     }
+    state.tasks = createDemoTasks();
+    saveToStorage();
+}
+
+function loadDemoData() {
     state.tasks = createDemoTasks();
     saveToStorage();
 }
