@@ -6,11 +6,34 @@ const COLUMN_EMPTY_STATES = {
     done:     { icon: 'fa-check-double',   text: 'No completed tasks yet.' }
 };
 
+function getVisibleTasks() {
+    let filteredTasks = [...state.tasks];
+    if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        filteredTasks = filteredTasks.filter(t =>
+            t.title.toLowerCase().includes(q) || (t.desc || '').toLowerCase().includes(q));
+    }
+    if (state.filterPriority !== 'all') {
+        filteredTasks = filteredTasks.filter(t => t.priority === state.filterPriority);
+    }
+    filteredTasks.sort((a, b) => {
+        if (state.sortBy === 'date-desc') return b.createdAt - a.createdAt;
+        if (state.sortBy === 'date-asc')  return a.createdAt - b.createdAt;
+        if (state.sortBy === 'priority-desc') {
+            const w = { high: 3, medium: 2, low: 1 };
+            return w[b.priority] - w[a.priority];
+        }
+        if (state.sortBy === 'title-asc') return a.title.localeCompare(b.title);
+        return 0;
+    });
+    return filteredTasks;
+}
+
 function render() {
     const counts = { todo: 0, progress: 0, done: 0 };
     Object.values(COLUMN_BODY_IDS).forEach(id => { document.getElementById(id).innerHTML = ''; });
 
-    state.tasks.forEach(task => {
+    getVisibleTasks().forEach(task => {
         const column = COLUMN_BODY_IDS[task.column] ? task.column : 'todo';
         document.getElementById(COLUMN_BODY_IDS[column]).appendChild(createTaskCardDOM(task));
         counts[column]++;
@@ -47,7 +70,12 @@ function createTaskCardDOM(task) {
     deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
     deleteBtn.addEventListener('click', () => deleteTask(task.id));
 
+    const time = document.createElement('span');
+    time.className = 'task-time';
+    time.textContent = formatRelativeTime(task.createdAt);
+
     header.appendChild(badge);
+    header.appendChild(time);
     header.appendChild(deleteBtn);
 
     const title = document.createElement('h4');
@@ -66,13 +94,23 @@ function createTaskCardDOM(task) {
 
     const footer = document.createElement('div');
     footer.className = 'task-footer';
-    footer.innerHTML = `<div class="card-actions-left"></div><div class="card-nav-arrows">${moveArrowsHTML(task)}</div>`;
+    const isDone = task.column === 'done';
+    const editBtn = `<button class="btn-card-action" onclick="openTaskModal('${task.id}')" title="${isDone ? 'View Task' : 'Edit Task'}"><i class="fas ${isDone ? 'fa-expand-alt' : 'fa-pencil-alt'}"></i></button>`;
+    footer.innerHTML = `<div class="card-actions-left">${editBtn}</div><div class="card-nav-arrows">${moveArrowsHTML(task)}</div>`;
 
     card.appendChild(header);
     card.appendChild(title);
     card.appendChild(desc);
     card.appendChild(footer);
     return card;
+}
+
+function renderTimestampsOnly() {
+    document.querySelectorAll('.task-card').forEach(card => {
+        const task = state.tasks.find(t => t.id === card.dataset.id);
+        const time = card.querySelector('.task-time');
+        if (task && time) time.textContent = formatRelativeTime(task.createdAt);
+    });
 }
 
 function moveArrowsHTML(task) {
